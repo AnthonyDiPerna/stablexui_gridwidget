@@ -28,7 +28,7 @@ SOFTWARE.
  * 
  * Website    : http://www.xenizogames.com
  * Repository : https://github.com/XenizoGames/blog_stablexui_gridwidget
- * Blog Post  : 
+ * Blog Post  : http://www.xenizogames.com/blog/
  * @author Tony DiPerna (Xenizo Games)
  */
 
