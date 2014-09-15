@@ -1,6 +1,35 @@
+/*
+The MIT License (MIT)
+
+Copyright (c) 2014 Tony DiPerna
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
 /**
- * ...
- * @author Tony DiPerna
+ * Custom stablexui vertical grid widget.  Wraps the usual scroll widget and allows us to add an infinite
+ * amount of items while scrolling vertically to accomodate them.  
+ * 
+ * Website    : http://www.xenizogames.com
+ * Repository : https://github.com/XenizoGames/blog_stablexui_gridwidget
+ * Blog Post  :
+ * @author Tony DiPerna (Xenizo Games)
  */
 
 package com.xenizogames.widgets;
@@ -18,17 +47,20 @@ class GridWidget extends Scroll
 	public var gridList:ru.stablex.ui.widgets.HBox;			//container that holds all columns and will be scrolled
 	public var columns:Array<ru.stablex.ui.widgets.VBox>; 	//The data grid columns
 	
-	private var _numCols:Int; 		//total cols in this grid
-	private var _numRows:Int; 		//total rows in this grid
-	private var _currIndex:Int; 	//Current column index, this is used so we know where to add to next
-	private var _itemHeight:Int; 	//Height of a list item in px
-	private var _scrollHeight:Float;
-	private var _itemWidth:Int;
+	private var _numCols:Int; 				//total cols in this grid
+	private var _numRows:Int; 				//total rows in this grid
+	private var _currIndex:Int; 			//Current column index, this is used so we know where to add to next
+	private var _itemWidth:Int;				//The width of a single list item in px
+	private var _itemHeight:Int; 			//Height of a list item in px
+	private var _scrollHeight:Float;		//The total height of the scrollable area (usually much larger than viewable area)
 	
 	/**
-	 * Create a new grid.  The grid will create columns to evenly fill out the desired width.
-	 * @param	inWidth      - total width of the grid in pixels
-	 * @param	inHeight     - total height of the grid in pixels
+	 * Create a new grid.  The grid will create columns to evenly fill out the desired width.  The goal
+	 * is to allow a user to add as many items as they wish and the grid will grow vertically to accomodate the
+	 * items.  The grid is scrollable in the y-direction only.
+	 * 
+	 * @param	inWidth      - total width of the grid in pixels (viewable size)
+	 * @param	inHeight     - total height of the grid in pixels (viewable size)
 	 * @param	inItemWidth  - Number of columns that will fill the parameter inWidth (evenly sized)
 	 * @param	inItemHeight - the y-height of a single list item in pixels
 	 */
@@ -36,35 +68,29 @@ class GridWidget extends Scroll
 	{	
 		super();
 		
+		//Store item size
 		_itemHeight = inItemHeight;
 		_itemWidth = inItemHeight;
 		
-		/*
-		vBar.slider.skinName 					= 'AIVOrange';
-		vBar.slider.widthPt       				= 70;
-		vBar.slider.leftPt       				= 15;
-		vBar.h									= inHeight;
-		vBar.right								= 5;
-		vBar.top								= 0;
-		vBar.vertical							= true;
-		hScroll      							= false;
-		hBar.visible 							= false;
-		vBar.w       							= Const.UI_VERTICAL_SCROLL_WIDTH;
-		vBar.skinName							= 'AIVBlueTranslucent';
-		*/
-		this.addEventListener(WidgetEvent.SCROLL_START, onScrollStart);
-		this.addEventListener(WidgetEvent.SCROLL_STOP, 	onScrollStop);
+		//Set viewable size for this widget (Scroll)
+		w = inWidth;
+		h = inHeight;
 		
-		//Store desired num of columns, from there we will autosize them depending on current screen size
+		//Set scrollable size for this widget
+		//This is a gridwidget that scrolls vertically, so width must match viewable width
+		_scrollHeight = inHeight; 		//Store this here since it will change as we add more widgets
+
+		//Calc num of columns, columns autosize depending on viewable size
 		_numCols = Math.floor(inWidth / inItemWidth);
 		
+		//Listeners that allow us to change scrollbar behavior
+		this.addEventListener(WidgetEvent.SCROLL_START, onScrollStart);
+		this.addEventListener(WidgetEvent.SCROLL_STOP, 	onScrollStop);
+				
 		_currIndex = 0;
 		_numRows = 0;
 		
-		w = inWidth;
-		h = inHeight;
-		_scrollHeight = inHeight; 		//Store this here since it will change as we add more widgets
-
+		
 		
 		//This is the grid of items itself
 		gridList = new HBox();
