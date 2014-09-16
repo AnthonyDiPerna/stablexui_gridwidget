@@ -68,6 +68,10 @@ class GridWidget extends Scroll
 	{	
 		super();
 		
+		//init internal variables
+		_currIndex = 0;
+		_numRows = 0;
+		
 		//Store item size
 		_itemHeight = inItemHeight;
 		_itemWidth = inItemHeight;
@@ -82,23 +86,19 @@ class GridWidget extends Scroll
 
 		//Calc num of columns, columns autosize depending on viewable size
 		_numCols = Math.floor(inWidth / inItemWidth);
-		
-		//Listeners that allow us to change scrollbar behavior
-		this.addEventListener(WidgetEvent.SCROLL_START, onScrollStart);
-		this.addEventListener(WidgetEvent.SCROLL_STOP, 	onScrollStop);
 				
-		_currIndex = 0;
-		_numRows = 0;
-		
-		
-		
-		//This is the grid of items itself
+		//This is the grid of items itself which will be scrolled
+		//Its a horizontal box that will have a number of columns inside
 		gridList = new HBox();
 		gridList.widthPt = 100;
 		gridList.heightPt = 100;
 		//gridList.skinName = "translucent";
 		
-		//Add the grid to the scroll container
+		//Listeners that allow us to change scrollbar behavior
+		this.addEventListener(WidgetEvent.SCROLL_START, onScrollStart);
+		this.addEventListener(WidgetEvent.SCROLL_STOP, 	onScrollStop);
+		
+		//Add the grid to the scroll container, this makes it the item that will be scrolled for stablexui (first child)
 		this.addChild(gridList);
 		
 		//Setup columns in the grid
@@ -107,24 +107,36 @@ class GridWidget extends Scroll
 		//redraw/organize the grid, needed after any change in the grid
 		refresh();
 		
-		//fade out
+		//fade out the scrollbar
 		Actuate.tween(this.vBar,2.0,{alpha:0});
 	}
 	
+	/**
+	 * When scrolling begins this event will fire, we use it to fade in the scrollbar
+	 * @param	e - The widget event (unused)
+	 */
 	private function onScrollStart(e:WidgetEvent):Void 
 	{
+		//fade in vertical scrollbar
 		Actuate.stop(this.vBar);
 		Actuate.tween(this.vBar,1.0,{alpha:1});
 	}
+	
+	/**
+	 * When scrolling ends this event will fire, we use it to fade out the scrollbar
+	 * @param	e
+	 */
 	private function onScrollStop(e:WidgetEvent):Void 
 	{
+		//fade out the scrollbar
 		Actuate.stop(this.vBar);
 		Actuate.tween(this.vBar,1.0,{alpha:0});
 	}
+	
 	/**
-	 * Setup the grid with the desired number of columns.  The column width is determined by the width passed into the constructor of this GridWidget
+	 * Setup the grid with the desired number of columns.  The column width is determined by the width of a grid list item
 	 */
-	function gridSetup():Void 
+	private function gridSetup():Void 
 	{
 		//Dynamically create columns that fit width of screen
 		var columnLayout = new Column();
@@ -147,8 +159,10 @@ class GridWidget extends Scroll
 			columns.push(b);
 		}
 	}
+	
 	/**
-	 * Add an item to the end of the grid list
+	 * Add an item to the end of the grid list, this will find the last column with an item and 
+	 * add the item to the next column (i.e. next row item, or start a new row)
 	 * @param	inWidget - the item to add
 	 */
 	public function addToEndOfGrid(inWidget:Widget):Void
@@ -156,8 +170,11 @@ class GridWidget extends Scroll
 		addWidget(inWidget);
 		resortGrid();
 	}
+	
 	/**
-	 * Add an item to the start of the grid list
+	 * Add an item to the start of the grid list, this adds an item
+	 * in the very first row/column position and shifts everything else over
+	 * by one column position (possibly into a new row)
 	 * @param	inWidget - the item to add
 	 * @note    Causes a grid re-sort
 	 */
@@ -167,8 +184,11 @@ class GridWidget extends Scroll
 		columns[0].addChildAt(inWidget, 1);
 		resortGrid();
 	}
+	
 	/**
-	 * Add an item to the middle of the grid list
+	 * Add an item to the middle of the grid list, this finds an approx. 
+	 * middle position of the grid and adds the item there moving all items after
+	 * the middle to shift over by one column position (possibly into a new row)
 	 * @param	inWidget - the item to add
 	 * @note    Causes a grid re-sort
 	 */
@@ -180,6 +200,7 @@ class GridWidget extends Scroll
 		columns[0].addChildAt(inWidget, insertPos);
 		resortGrid();
 	}
+	
 	/**
 	 * Remove an item from anywhere in the grid
 	 * @param	inWidget - the widget to remove, if the gridlist is not the parent of this then nothing happens
@@ -187,16 +208,27 @@ class GridWidget extends Scroll
 	 */
 	public function removeWidget(inWidget:Widget):Void
 	{
+		//Error Checking
+		if (inWidget == null)
+		{
+			throw("Error: null parameter, please verify widget for removal");
+		}
+		
 		//Make sure we actually have this widget in the grid, if we don't then dont do anything
-		//if (inWidget.parent != gridList) return;
+		if (inWidget.parent != gridList)
+		{
+			throw("Error: trying to remove a widget that doesn't belong to this grid, real parent is: " + inWidget.parent);
+		}
 		
 		//remove the item from the list
 		inWidget.parent.removeChild(inWidget);
 		resortGrid();
 	}
+	
 	/**
 	 * Add an item to the end of the grid list
 	 * @param	inWidget - the item to add
+	 * @note    Does not cause a grid resort
 	 */
 	public function addWidget(inWidget:Widget):Void
 	{
@@ -213,21 +245,53 @@ class GridWidget extends Scroll
 			_numRows++;
 		}
 	}
-	function checkForUnfinishedRows():Void
+	
+	/**
+	 * When the widget is refreshed we will update extra data necessary for this grid
+	 */
+	override public function refresh():Void 
+	{
+		//make sure we don't have any half complete rows...if we do refresh the total scrollable height
+		//to make sure we can see all rows (even uncomplete ones)
+		checkForUnfinishedRows();
+		
+		//Set the height of the list based on the number of rows we have, we need this calculation
+		//to make the scrollable area fit the num of rows (that can change dynamically), without this 
+		//the scrollable area is "off" and doesnt work very cleanly
+		gridList.h = getScrollHeight(_numRows+1,_itemHeight);		//+1 since arrays are 0 based, but viewable display is 1 based (need to see first row)
+		
+		//Refresh each column individually to make sure layout is clean
+		for (c in columns)
+		{
+			c.refresh();
+		}
+		
+		//stablexui widget refresh behavior
+		super.refresh();
+	}
+	
+	/**
+	 * Helper function to modify scrollable height based on if a row is only partially filled
+	 */
+	private inline function checkForUnfinishedRows():Void
 	{
 		//one more row to make sure we have enough to see everything
 		//this is needed since we started a new row but didnt finish it
+		//When currIndex > 0 it means the next free column is NOT the first column
 		if (_currIndex > 0)
 		{
 			_numRows++;
 		}
 	}
+	
 	/**
-	 * Resort the grid.  This is required when adding or removing objects into the middle or start of the grid.  
+	 * Resort the grid.  
+	 * This is required when adding or removing objects into the middle or start of the grid to keep the layout correct
+	 * @note - Try to call this only when needed for performance reasons
 	 */
 	private function resortGrid():Void
 	{
-		//we know how the scroll box is created, so use that knowledge to create data on the fly
+		//Create flat array as temporary storage doing resort
 		var items = new Array<DisplayObject>();
 		var totalChildren = 0;
 		
@@ -241,38 +305,43 @@ class GridWidget extends Scroll
 		}
 		
 		//loop through all columns and get the lowest index child (at the top in y-dir) to preserve current order of grid items
+		//We basically build a flat array from each columns list of children to maintain order, then re-sort the flat array
+		//and break back into columns
 		for (z in 0...totalChildren)
 		{
 			//loop through each column
 			for (col in columns)
 			{
-				//trace("column: " + col.name + " : " + col.numChildren);
+				//Make sure the column has items in it
 				if (col.numChildren > 0)
 				{
+					//get the item currently at the top of the column
 					var item:DisplayObject = col.getChildAt(0);
+					
+					//Make sure we are not grabbing some kind of background object
 					if (Std.is(item, Widget))
 					{
-						//found an item store it an the array
+						//found an item - store it an the flat array
 						items.push(item);
 						
-						//remove from its old column
+						//remove item from its old column
 						item.parent.removeChild(item);
 					}
 				}
 			}
 		}
 		
-		//Reset since we are resorting
+		//Reset internal class variables since we are resorting
 		_currIndex = 0;
 		_numRows = 0;
 		
-		//Add all items back to the columns
+		//Add all items back to the columns from the flat array
 		for (i in items)
 		{
 			columns[_currIndex].addChild(i);
-			//trace("col" + Std.string(currIndex));
 			
 			_currIndex++;
+			
 			//roll back to first column
 			if (_currIndex >= _numCols)
 			{
@@ -281,14 +350,15 @@ class GridWidget extends Scroll
 			}
 		}
 		
+		//redraw the grid and all child widgets
 		refresh();
 	}
 	
 	/**
 	 * Get the total scrollable height of the grid of objects
-	 * @param	inNumRows
-	 * @param	inHeight
-	 * @return
+	 * @param	inNumRows - The total grid rows in our layout
+	 * @param	inHeight  - The height of a single grid item
+	 * @return	Total Scrollable Height
 	 */
 	private inline function getScrollHeight(inNumRows:Int,inHeight:Int):Int
 	{
@@ -296,35 +366,29 @@ class GridWidget extends Scroll
 		return Math.floor(Math.max(inNumRows * inHeight,_scrollHeight));
 	}
 	
-	override public function refresh():Void 
-	{
-		//make sure we don't have any half complete rows...if we do refresh
-		checkForUnfinishedRows();
-		
-		gridList.h = getScrollHeight(_numRows+1,_itemHeight);
-		
-		for (c in columns)
-		{
-			c.refresh();
-		}
-		
-		super.refresh();
-	}
-	//the number of columns we support in our grid is based on current screen resolution and the desired grid width
+	/**
+	 * The number of columns we support in our grid is based on total grid width and number of columns desired (which is precalculated)
+	 * @param	inNumCols - The number of columns we will break the list of items into
+	 * @return  An array of floats specifying the column layout in stablexui form 
+	 * @example Example return value - [.33,..33,.33] 3 column layout with each column using 33% of the total grid width
+	 */
 	private function getColumnArrayForGrid(inNumCols:Int):Array<Float>
 	{
-		var cols = new Array<Float>();
-		var perc = 1 / inNumCols;
+		//Verify parameters
+		if (inNumCols <= 1)
+		{
+			throw("Error: invalid number of columns, need at least 2 columns for a valid grid layout");
+		}
 		
+		var cols = new Array<Float>();
+		var perc = 1 / inNumCols;		//Even percent for columns
+		
+		//add a new array entry for each column
 		for (i in 0...inNumCols)
 		{
 			cols.push(perc);
 		}
 		
-		if (cols.length < 2)
-		{
-			throw("error...not enough space to make columns correctly...layout is borked!");
-		}
 		return cols;
 	}
 }
