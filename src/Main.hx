@@ -9,7 +9,7 @@ import ru.stablex.ui.UIBuilder;
 import ru.stablex.ui.widgets.Button;
 
 /**
- * 
+ * Test
  * @author Tony DiPerna
  */
 
