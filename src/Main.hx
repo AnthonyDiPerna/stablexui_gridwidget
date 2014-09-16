@@ -9,7 +9,9 @@ import ru.stablex.ui.UIBuilder;
 import ru.stablex.ui.widgets.Button;
 
 /**
- * ...
+ * OpenFL Boilerplate 
+ * StableXUI Boilerplate
+ * Grid Widget (custom widget) Boilerplate
  * @author Tony DiPerna
  */
 
@@ -65,6 +67,8 @@ class Main extends Sprite
 		//initialize StablexUI
         UIBuilder.init();
 		
+		//Start - Grid Widget Boilerplate
+		//*************************************
 		//Grid sizing
 		var totalGridWidth = 400;
 		var totalGridHeight = 200;
@@ -74,6 +78,7 @@ class Main extends Sprite
 		//Create the grid
 		var grid = new GridWidget(totalGridWidth, totalGridHeight, itemWidth, itemHeight);
 		
+		//Create some test data
 		for (i in 0...120)
 		{
 			//Apply a random color skin to each button to show each item
@@ -98,5 +103,9 @@ class Main extends Sprite
 		grid.refresh(); 
 		
         Lib.current.addChild(grid);
+		
+		//End - Grid Widget Boilerplate
+		//*************************************
+		
 	}
 }
