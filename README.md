@@ -1,7 +1,7 @@
-blog_stablexui_gridwidget
+StableXUI Grid Widget
 =========================
 
-OpenFL Stablexui GridWidget Implementation.  
+A vertical scrolling custom grid widget for [StableXUI](https://github.com/RealyUniqueName/StablexUI). 
 
 #### Note 
 
