@@ -55,7 +55,7 @@ grid.addToStartOfGrid(new ru.stablex.ui.widgets.Button())
 grid.addToEndOfGrid(new ru.stablex.ui.widgets.Button())
 </pre>
 
-### Add an item to the about the middle of the grid ###
+### Add an item to about the middle of the grid ###
 
 <pre>
 //This button will be in the mid row and first column of the grid
