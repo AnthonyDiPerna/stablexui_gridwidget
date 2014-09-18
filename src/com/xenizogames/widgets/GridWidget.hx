@@ -198,7 +198,7 @@ class GridWidget extends Scroll
 	 * @param	inWidget - the item to add
 	 * @note    Causes a grid re-sort
 	 */
-	public function addtoStartOfGrid(inWidget:Widget):Void
+	public function addToStartOfGrid(inWidget:Widget):Void
 	{
 		//add to start of grid then resort to look nice
 		columns[0].addChildAt(inWidget, 1);
@@ -206,24 +206,13 @@ class GridWidget extends Scroll
 	}
 	
 	/**
-	 * Helper to find approx. middle row out of all rows in a column
-	 * @param	inNumRows - The number of children a column has
-	 * @return	Approx Middle Row Index
-	 */
-	private inline function getApproxMiddleRow(inNumRows:Int):Int
-	{
-		return firstCol.numChildren > 0						?
-					Math.floor(firstCol.numChildren / 2) 	:
-					0; 
-	}
-	/**
 	 * Add an item to the middle of the grid list, this finds an approx. 
 	 * middle position of the grid and adds the item there moving all items after
 	 * the middle to shift over by one column position (possibly into a new row)
 	 * @param	inWidget - the item to add
 	 * @note    Causes a grid re-sort
 	 */
-	public function addtoMiddleOfGrid(inWidget:Widget):Void
+	public function addToMiddleOfGrid(inWidget:Widget):Void
 	{
 		//add item to middle (approx.) of grid then resort to look nice
 		var firstCol = columns[0];
@@ -252,7 +241,7 @@ class GridWidget extends Scroll
 		//if we don't then don't do anything
 		if (inWidget.parent != gridList)
 		{
-			throw("Error: trying to remove a widget that doesn't belong to this grid, \
+			throw("Error: trying to remove a widget that doesn't belong to this grid, 
 		    real parent is: " + inWidget.parent);
 		}
 		
@@ -308,6 +297,18 @@ class GridWidget extends Scroll
 		
 		//stablexui widget refresh behavior
 		super.refresh();
+	}
+	
+	/**
+	 * Helper to find approx. middle row out of all rows in a column
+	 * @param	inNumRows - The number of children a column has
+	 * @return	Approx Middle Row Index
+	 */
+	private inline function getApproxMiddleRow(inNumRows:Int):Int
+	{
+		return inNumRows > 0				?
+				Math.floor(inNumRows / 2) 	:
+				0; 
 	}
 	
 	/**
@@ -423,7 +424,7 @@ class GridWidget extends Scroll
 		//Verify parameters
 		if (inNumCols <= 1)
 		{
-			throw("Error: invalid number of columns, \
+			throw("Error: invalid number of columns, 
 			need at least 2 columns for a valid grid layout");
 		}
 		
