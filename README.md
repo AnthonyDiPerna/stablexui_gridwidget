@@ -1,9 +1,16 @@
 blog_stablexui_gridwidget
 =========================
 
-OpenFL Stablexui GridWidget Implementation
+OpenFL Stablexui GridWidget Implementation.  
 
-To use GridWidget.hx do the following:
+#### Note 
+
+- All grid items must be the same width and height
+- Any StableXUI widget type can be added to the grid (not just buttons)
+- Custom Widgets will add to the grid without issue
+- Grid currently only supports vertical scrolling
+
+## Usage
 
 ### Create the grid ###
 
