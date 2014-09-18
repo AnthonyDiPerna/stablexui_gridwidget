@@ -12,7 +12,7 @@ To use GridWidget.hx do the following:
 		var grid = new GridWidget(totalGridWidth, totalGridHeight, itemWidth, itemHeight);
 </pre>
 
-### Add any number of StableXUI Widgets ### 
+### Add any number of StableXUI Widgets 
 
 <pre>
 		//Create some test data
