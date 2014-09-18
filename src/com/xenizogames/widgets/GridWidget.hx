@@ -206,6 +206,17 @@ class GridWidget extends Scroll
 	}
 	
 	/**
+	 * Helper to find approx. middle row out of all rows in a column
+	 * @param	inNumRows - The number of children a column has
+	 * @return	Approx Middle Row Index
+	 */
+	private inline function getApproxMiddleRow(inNumRows:Int):Int
+	{
+		return firstCol.numChildren > 0						?
+					Math.floor(firstCol.numChildren / 2) 	:
+					0; 
+	}
+	/**
 	 * Add an item to the middle of the grid list, this finds an approx. 
 	 * middle position of the grid and adds the item there moving all items after
 	 * the middle to shift over by one column position (possibly into a new row)
@@ -216,14 +227,17 @@ class GridWidget extends Scroll
 	{
 		//add item to middle (approx.) of grid then resort to look nice
 		var firstCol = columns[0];
-		var insertPos = firstCol.numChildren > 0 ? Math.floor(firstCol.numChildren/2) : 0; //half way down first col
+		//approx. half way down first col
+		var insertPos = getApproxMiddleRow(firstCol.numChildren);
+		//add to mid
 		columns[0].addChildAt(inWidget, insertPos);
 		resortGrid();
 	}
 	
 	/**
 	 * Remove an item from anywhere in the grid
-	 * @param	inWidget - the widget to remove, if the gridlist is not the parent of this then nothing happens
+	 * @param	inWidget - the widget to remove, if the gridlist \
+	 *  		is not the parent of this then nothing happens
 	 * @note	Causes a grid re-sort
 	 */
 	public function removeWidget(inWidget:Widget):Void
