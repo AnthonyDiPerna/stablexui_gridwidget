@@ -23,7 +23,8 @@ SOFTWARE.
 */
 
 /**
- * Custom stablexui vertical grid widget.  Wraps the usual scroll widget and allows us to add an infinite
+ * Custom stablexui vertical grid widget.  
+ * Wraps the usual scroll widget and allows us to add an infinite
  * amount of items while scrolling vertically to accomodate them.  
  * 
  * Website    : http://www.xenizogames.com
@@ -44,24 +45,35 @@ import ru.stablex.ui.widgets.Widget;
 
 class GridWidget extends Scroll
 {
-	public var gridList:ru.stablex.ui.widgets.HBox;			//container that holds all columns and will be scrolled
-	public var columns:Array<ru.stablex.ui.widgets.VBox>; 	//The data grid columns
+	//container that holds all columns and will be scrolled
+	public var gridList:ru.stablex.ui.widgets.HBox;			
 	
-	private var _numCols:Int; 				//total cols in this grid
-	private var _numRows:Int; 				//total rows in this grid
-	private var _currIndex:Int; 			//Current column index, this is used so we know where to add to next
-	private var _itemWidth:Int;				//The width of a single list item in px
-	private var _itemHeight:Int; 			//Height of a list item in px
-	private var _scrollHeight:Float;		//The total height of the scrollable area (usually much larger than viewable area)
+	//The data grid columns
+	public var columns:Array<ru.stablex.ui.widgets.VBox>; 	
+	
+	//total cols in this grid
+	private var _numCols:Int;
+	//total rows in this grid
+	private var _numRows:Int;
+	//Current column index, this is used so we know where to add the next grid item
+	private var _currIndex:Int; 			
+	//The width of a single list item in px
+	private var _itemWidth:Int;				
+	//Height of a list item in px
+	private var _itemHeight:Int; 		
+	//The total height of the scrollable area 
+	//(usually much larger than viewable area)
+	private var _scrollHeight:Float;		
 	
 	/**
-	 * Create a new grid.  The grid will create columns to evenly fill out the desired width.  The goal
-	 * is to allow a user to add as many items as they wish and the grid will grow vertically to accomodate the
+	 * Create a new grid.  The grid will create columns to evenly fill 
+	 * out the desired width.  The goal is to allow a user to add as many
+	 * items as they wish and the grid will grow vertically to accomodate the
 	 * items.  The grid is scrollable in the y-direction only.
 	 * 
 	 * @param	inWidth      - total width of the grid in pixels (viewable size)
 	 * @param	inHeight     - total height of the grid in pixels (viewable size)
-	 * @param	inItemWidth  - Number of columns that will fill the parameter inWidth (evenly sized)
+	 * @param	inItemWidth  - Number of columns that will fill param inWidth (evenly sized)
 	 * @param	inItemHeight - the y-height of a single list item in pixels
 	 */
 	public function new(inWidth:Float,inHeight:Float,inItemWidth:Int,inItemHeight:Int):Void 
@@ -82,7 +94,8 @@ class GridWidget extends Scroll
 		
 		//Set scrollable size for this widget
 		//This is a gridwidget that scrolls vertically, so width must match viewable width
-		_scrollHeight = inHeight; 		//Store this here since it will change as we add more widgets
+		//Store this here since it will change as we add more widgets
+		_scrollHeight = inHeight; 		
 
 		//Calc num of columns, columns autosize depending on viewable size
 		_numCols = Math.floor(inWidth / inItemWidth);
@@ -98,7 +111,8 @@ class GridWidget extends Scroll
 		this.addEventListener(WidgetEvent.SCROLL_START, onScrollStart);
 		this.addEventListener(WidgetEvent.SCROLL_STOP, 	onScrollStop);
 		
-		//Add the grid to the scroll container, this makes it the item that will be scrolled for stablexui (first child)
+		//Add the grid to the scroll container, this makes it the item 
+		//that will be scrolled for stablexui (first child)
 		this.addChild(gridList);
 		
 		//Setup columns in the grid
@@ -112,7 +126,8 @@ class GridWidget extends Scroll
 	}
 	
 	/**
-	 * When scrolling begins this event will fire, we use it to fade in the scrollbar
+	 * When scrolling begins this event will fire, 
+	 * we use it to fade in the scrollbar
 	 * @param	e - The widget event (unused)
 	 */
 	private function onScrollStart(e:WidgetEvent):Void 
@@ -123,7 +138,8 @@ class GridWidget extends Scroll
 	}
 	
 	/**
-	 * When scrolling ends this event will fire, we use it to fade out the scrollbar
+	 * When scrolling ends this event will fire,
+	 * we use it to fade out the scrollbar
 	 * @param	e
 	 */
 	private function onScrollStop(e:WidgetEvent):Void 
@@ -134,13 +150,15 @@ class GridWidget extends Scroll
 	}
 	
 	/**
-	 * Setup the grid with the desired number of columns.  The column width is determined by the width of a grid list item
+	 * Setup the grid with the desired number of columns.  
+	 * The column width is determined by the width of a grid list item
 	 */
 	private function gridSetup():Void 
 	{
 		//Dynamically create columns that fit width of screen
 		var columnLayout = new Column();
-		var cols = getColumnArrayForGrid(_numCols); //columns needed by stableXUI
+		//columns needed by stableXUI
+		var cols = getColumnArrayForGrid(_numCols); 
 		
 		columnLayout.cols = cols;
 		gridList.layout = columnLayout;
@@ -154,14 +172,16 @@ class GridWidget extends Scroll
 			var b = new VBox();
 			b.childPadding = 5;
 			b.name = "col" + Std.string(n + 1);
-			b.align = "center,top"; //must be top or else when removing/adding to the columns height gets messed up
+			//must be top or else when removing/adding to the columns height gets messed up
+			b.align = "center,top"; 
 			gridList.addChild(b);
 			columns.push(b);
 		}
 	}
 	
 	/**
-	 * Add an item to the end of the grid list, this will find the last column with an item and 
+	 * Add an item to the end of the grid list, 
+	 * this will find the last column with an item and 
 	 * add the item to the next column (i.e. next row item, or start a new row)
 	 * @param	inWidget - the item to add
 	 */
@@ -214,10 +234,12 @@ class GridWidget extends Scroll
 			throw("Error: null parameter, please verify widget for removal");
 		}
 		
-		//Make sure we actually have this widget in the grid, if we don't then dont do anything
+		//Make sure we actually have this widget in the grid, 
+		//if we don't then don't do anything
 		if (inWidget.parent != gridList)
 		{
-			throw("Error: trying to remove a widget that doesn't belong to this grid, real parent is: " + inWidget.parent);
+			throw("Error: trying to remove a widget that doesn't belong to this grid, \
+		    real parent is: " + inWidget.parent);
 		}
 		
 		//remove the item from the list
@@ -251,14 +273,18 @@ class GridWidget extends Scroll
 	 */
 	override public function refresh():Void 
 	{
-		//make sure we don't have any half complete rows...if we do refresh the total scrollable height
+		//make sure we don't have any half complete rows.
+		//if we do refresh the total scrollable height
 		//to make sure we can see all rows (even uncomplete ones)
 		checkForUnfinishedRows();
 		
-		//Set the height of the list based on the number of rows we have, we need this calculation
-		//to make the scrollable area fit the num of rows (that can change dynamically), without this 
-		//the scrollable area is "off" and doesnt work very cleanly
-		gridList.h = getScrollHeight(_numRows+1,_itemHeight);		//+1 since arrays are 0 based, but viewable display is 1 based (need to see first row)
+		//Set the height of the list based on the number of rows we have, 
+		//we need this calculation to make the scrollable area fits the num of rows 
+		//(that can change dynamically), without this the scrollable area is "off" 
+		//and doesnt work very cleanly
+		//
+		//+1 since arrays are 0 based, but viewable display is 1 based (need to see first row)
+		gridList.h = getScrollHeight(_numRows+1,_itemHeight);		
 		
 		//Refresh each column individually to make sure layout is clean
 		for (c in columns)
@@ -271,7 +297,8 @@ class GridWidget extends Scroll
 	}
 	
 	/**
-	 * Helper function to modify scrollable height based on if a row is only partially filled
+	 * Helper function to modify scrollable height 
+	 * based on if a row is only partially filled
 	 */
 	private inline function checkForUnfinishedRows():Void
 	{
@@ -286,7 +313,8 @@ class GridWidget extends Scroll
 	
 	/**
 	 * Resort the grid.  
-	 * This is required when adding or removing objects into the middle or start of the grid to keep the layout correct
+	 * This is required when adding or removing objects into the middle
+	 * or start of the grid to keep the layout correct
 	 * @note - Try to call this only when needed for performance reasons
 	 */
 	private function resortGrid():Void
@@ -295,7 +323,8 @@ class GridWidget extends Scroll
 		var items = new Array<DisplayObject>();
 		var totalChildren = 0;
 		
-		//find column with most stuff in it...we need to check this because items can be added/removed from the grid
+		//find column with most stuff in it...we need to check this because
+		//items can be added/removed from the grid
 		for (c in columns)
 		{
 			if (totalChildren < c.numChildren)
@@ -304,8 +333,9 @@ class GridWidget extends Scroll
 			}
 		}
 		
-		//loop through all columns and get the lowest index child (at the top in y-dir) to preserve current order of grid items
-		//We basically build a flat array from each columns list of children to maintain order, then re-sort the flat array
+		//loop through all columns and get the lowest index child (at the top in y-dir) 
+		//to preserve current order of grid items.  We basically build a flat array from 
+		//each columns list of children to maintain order, then re-sort the flat array
 		//and break back into columns
 		for (z in 0...totalChildren)
 		{
@@ -367,17 +397,20 @@ class GridWidget extends Scroll
 	}
 	
 	/**
-	 * The number of columns we support in our grid is based on total grid width and number of columns desired (which is precalculated)
+	 * The number of columns we support in our grid is based on total grid width
+	 * and number of columns desired (which is precalculated)
 	 * @param	inNumCols - The number of columns we will break the list of items into
 	 * @return  An array of floats specifying the column layout in stablexui form 
-	 * @example Example return value - [.33,..33,.33] 3 column layout with each column using 33% of the total grid width
+	 * @example Example return value - [.33,..33,.33] \
+	 * 3 column layout with each column using 33% of the total grid width
 	 */
 	private function getColumnArrayForGrid(inNumCols:Int):Array<Float>
 	{
 		//Verify parameters
 		if (inNumCols <= 1)
 		{
-			throw("Error: invalid number of columns, need at least 2 columns for a valid grid layout");
+			throw("Error: invalid number of columns, \
+			need at least 2 columns for a valid grid layout");
 		}
 		
 		var cols = new Array<Float>();
